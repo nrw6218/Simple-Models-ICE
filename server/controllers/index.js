@@ -2,6 +2,7 @@
 const models = require('../models');
 
 const Cat = models.Cat.CatModel;
+const Dog = models.Dog.DogModel;
 
 // default fake data so that we have something to work with until we make a real Cat
 const defaultData = {
@@ -9,8 +10,15 @@ const defaultData = {
   bedsOwned: 0,
 };
 
+const defaultDogData = {
+  name: 'unknown',
+  breed: 'unknown',
+  age: 0,
+}
+
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
 let lastAdded = new Cat(defaultData);
+let lastDog = new Dog(defaultData);
 
 const hostIndex = (req, res) => {
   res.render('index', {
@@ -23,6 +31,10 @@ const hostIndex = (req, res) => {
 const readAllCats = (req, res, callback) => {
   Cat.find(callback);
 };
+
+const readAllDogs = (req, res, callback) => {
+  Dog.find(callback);
+}
 
 const readCat = (req, res) => {
   const name1 = req.query.name;
@@ -37,6 +49,20 @@ const readCat = (req, res) => {
 
   Cat.findByName(name1, callback);
 };
+
+const readDog = (req, res) => {
+  const name1 = req.query.name;
+
+  const callback = (err, doc) => {
+    if (err) {
+      return res.json({ err });
+    }
+
+    return res.json(doc);
+  };
+
+  Dog.findByName(name1, callback);
+}
 
 const hostPage1 = (req, res) => {
   const callback = (err, docs) => {
