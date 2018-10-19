@@ -8,10 +8,11 @@
   
   <!-- links or URLs are always GET resources as they are getting (retrieving) a resource -->
   <a href="/">Home</a>
-  <a href="/page1">Page 1</a>
-  <a href="/page2">Page 2</a>
+  <a href="/page1">Cat List</a>
+  <a href="/page2">Add a Cat</a>
+  <a href="/page4">Dog List</a>
 
-  <form action="/setName" method="POST">
+  <form action="/setDogName" method="POST">
     <label for="name">Name:</label>
     <input type="text" name="name" value="">
     <label for="breed">Breed: </label>
@@ -24,7 +25,15 @@
   <br/>
   <br/>
   
-  <form action="updateAge" method="GET">
+
+  <form action="/updateLastDog" method="POST">
+    <input type="submit" value="Update Last">
+  </form>
+  
+  <br/>
+  <br/>
+  
+  <form action="findDogByName" method="GET">
     <label for="name">Name to search for:</label>
     <input type="text" name="name" value="">
     <input type="submit" value="Submit">

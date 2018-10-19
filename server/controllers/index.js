@@ -14,11 +14,11 @@ const defaultDogData = {
   name: 'unknown',
   breed: 'unknown',
   age: 0,
-}
+};
 
 // object for us to keep track of the last Cat we made and dynamically update it sometimes
 let lastAdded = new Cat(defaultData);
-let lastDog = new Dog(defaultData);
+let lastDog = new Dog(defaultDogData);
 
 const hostIndex = (req, res) => {
   res.render('index', {
@@ -34,7 +34,7 @@ const readAllCats = (req, res, callback) => {
 
 const readAllDogs = (req, res, callback) => {
   Dog.find(callback);
-}
+};
 
 const readCat = (req, res) => {
   const name1 = req.query.name;
@@ -62,7 +62,7 @@ const readDog = (req, res) => {
   };
 
   Dog.findByName(name1, callback);
-}
+};
 
 const hostPage1 = (req, res) => {
   const callback = (err, docs) => {
@@ -84,11 +84,26 @@ const hostPage3 = (req, res) => {
   res.render('page3');
 };
 
-const getName = (req, res) => {
+const hostPage4 = (req, res) => {
+  const callback = (err, docs) => {
+    if (err) {
+      return res.json({ err });
+    }
+
+    return res.render('page4', { dogs: docs });
+  };
+  readAllDogs(req, res, callback);
+};
+
+const getCatName = (req, res) => {
   res.json({ name: lastAdded.name });
 };
 
-const setName = (req, res) => {
+const getDogName = (req, res) => {
+  res.json({ name: lastDog.name });
+};
+
+const setCatName = (req, res) => {
   if (!req.body.firstname || !req.body.lastname || !req.body.beds) {
     return res.status(400).json({ error: 'firstname,lastname and beds are all required' });
   }
@@ -115,8 +130,34 @@ const setName = (req, res) => {
   return res;
 };
 
+const setDogName = (req, res) => {
+  if (!req.body.name || !req.body.breed || !req.body.age) {
+    return res.status(400).json({ error: 'name, breed and age are all required' });
+  }
 
-const searchName = (req, res) => {
+  // dummy JSON to insert into database
+  const dogData = {
+    name: req.body.name,
+    breed: req.body.breed,
+    age: req.body.age,
+  };
+
+  const newDog = new Dog(dogData);
+
+  const savePromise = newDog.save();
+
+  savePromise.then(() => {
+    lastDog = newDog;
+    res.json({ name: lastDog.name, breed: lastDog.breed, age: lastDog.age });
+  });
+
+  savePromise.catch(err => res.json({ err }));
+
+  return res;
+};
+
+
+const searchCatName = (req, res) => {
   if (!req.query.name) {
     return res.json({ error: 'Name is required to perform a search' });
   }
@@ -134,12 +175,40 @@ const searchName = (req, res) => {
   });
 };
 
-const updateLast = (req, res) => {
+const searchDogName = (req, res) => {
+  if (!req.query.name) {
+    return res.json({ error: 'Name is required to perform a search' });
+  }
+
+  return Dog.findByName(req.query.name, (err, doc) => {
+    if (err) {
+      return res.json({ err });
+    }
+
+    if (!doc) {
+      return res.json({ error: 'No dogs found' });
+    }
+
+    return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
+  });
+};
+
+const updateLastCat = (req, res) => {
   lastAdded.bedsOwned++;
 
   const savePromise = lastAdded.save();
 
   savePromise.then(() => res.json({ name: lastAdded.name, beds: lastAdded.bedsOwned }));
+
+  savePromise.catch(err => res.json({ err }));
+};
+
+const updateLastDog = (req, res) => {
+  lastDog.age++;
+
+  const savePromise = lastDog.save();
+
+  savePromise.then(() => res.json({ name: lastDog.name, breed: lastDog.breed, age: lastDog.age }));
 
   savePromise.catch(err => res.json({ err }));
 };
@@ -155,10 +224,16 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   readCat,
-  getName,
-  setName,
-  updateLast,
-  searchName,
+  readDog,
+  getCatName,
+  getDogName,
+  setCatName,
+  setDogName,
+  updateLastCat,
+  updateLastDog,
+  searchCatName,
+  searchDogName,
   notFound,
 };
